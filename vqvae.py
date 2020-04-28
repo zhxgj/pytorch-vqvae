@@ -50,7 +50,6 @@ def train(data_loader, model, optimizer, args, writer, epoch):
         loss = loss_recons + loss_vq + args.beta * loss_commit
         loss.backward()
 
-        print(loss.item(), loss_recons.item(), loss_vq.item())
         # Logs
         writer.add_scalar('loss/train/reconstruction', loss_recons.item(), args.steps)
         writer.add_scalar('loss/train/quantization', loss_vq.item(), args.steps)

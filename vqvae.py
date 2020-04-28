@@ -5,7 +5,7 @@ from torchvision import transforms, datasets
 from torchvision.utils import save_image, make_grid
 
 from modules import VectorQuantizedVAE, to_scalar
-from datasets import MiniImagenet
+from datasets import MiniImagenet, PubTabNet
 
 from tensorboardX import SummaryWriter
 
@@ -88,6 +88,14 @@ def main(args):
                 train=False, transform=transform)
             num_channels = 3
         valid_dataset = test_dataset
+    elif args.dataset == 'PubTabNet':
+        transform = transforms.Compose([
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+        train_dataset = PubTabNet(args.data_folder, args.data_name, 'TRAIN', transform=transform)
+        test_dataset = PubTabNet(args.data_folder, args.data_name, 'VAL', transform=transform)
+        valid_dataset = test_dataset
+        num_channels = 3
     elif args.dataset == 'miniimagenet':
         transform = transforms.Compose([
             transforms.RandomResizedCrop(128),
@@ -142,6 +150,7 @@ def main(args):
         with open('{0}/model_{1}.pt'.format(save_filename, epoch + 1), 'wb') as f:
             torch.save(model.state_dict(), f)
 
+
 if __name__ == '__main__':
     import argparse
     import os
@@ -153,6 +162,9 @@ if __name__ == '__main__':
     parser.add_argument('--data-folder', type=str,
         help='name of the data folder')
     parser.add_argument('--dataset', type=str,
+        help='name of the dataset (mnist, fashion-mnist, cifar10, miniimagenet)')
+    parser.add_argument('--data-name', type=str,
+        default='PubTabNet_False_keep_AR_300_max_tag_len_100_max_cell_len_512_max_image_size'
         help='name of the dataset (mnist, fashion-mnist, cifar10, miniimagenet)')
 
     # Latent space

@@ -1,7 +1,11 @@
 import os
 import csv
+import torch
 import torch.utils.data as data
 from PIL import Image
+from torch.utils.data import Dataset
+import h5py
+import json
 
 def pil_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
@@ -9,6 +13,56 @@ def pil_loader(path):
     with open(path, 'rb') as f:
         img = Image.open(f)
         return img.convert('RGB')
+
+class PubTabNet(Dataset):
+    """
+    A PyTorch Dataset class to be used in a PyTorch DataLoader to create batches.
+    """
+
+    def __init__(self, data_folder, data_name, split, transform=None, get_html=False):
+        """
+        :param data_folder: folder where data files are stored
+        :param data_name: base name of processed datasets
+        :param split: split, one of 'TRAIN', 'VAL', or 'TEST'
+        :param transform: image transform pipeline
+        """
+        self.split = split
+        self.get_html = get_html
+        assert self.split in {'TRAIN', 'VAL', 'TEST'}
+
+        # Open hdf5 file where images are stored
+        self.h = h5py.File(os.path.join(data_folder, self.split + '_IMAGES_' + data_name + '.hdf5'), 'r')
+        self.imgs = self.h['images']
+
+        if self.get_html:
+            # Load encoded tags (completely into memory)
+            with open(os.path.join(data_folder, self.split + '_TAGS_' + data_name + '.json'), 'r') as j:
+                self.tags = json.load(j)
+
+            # Load tag lengths (completely into memory)
+            with open(os.path.join(data_folder, self.split + '_TAGLENS_' + data_name + '.json'), 'r') as j:
+                self.taglens = json.load(j)
+
+        # PyTorch transformation pipeline for the image (normalizing, etc.)
+        self.transform = transform
+
+        # Total number of datapoints
+        self.dataset_size = self.imgs.shape[0]
+
+    def __getitem__(self, i):
+        # Remember, the Nth caption corresponds to the (N // captions_per_image)th image
+        img = torch.FloatTensor(self.imgs[i] / 255.)
+        if self.transform is not None:
+            img = self.transform(img)
+        if self.get_html:
+            tags = torch.LongTensor(self.tags[i])
+            taglens = torch.LongTensor(self.taglens[i])
+            return img, tags, taglens
+        else:
+            return img
+
+    def __len__(self):
+        return self.dataset_size
 
 class MiniImagenet(data.Dataset):
 
@@ -78,7 +132,7 @@ class MiniImagenet(data.Dataset):
             for (idx, label) in enumerate(unique_labels))
 
     def _check_exists(self):
-        return (os.path.exists(self.image_folder) 
+        return (os.path.exists(self.image_folder)
             and os.path.exists(self.split_filename))
 
     def download(self):

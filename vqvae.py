@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -68,7 +69,7 @@ def train(data_loader, model, optimizer, args, writer, epoch):
                       epoch, i, len(data_loader),
                       loss=losses,
                       loss_recons=losses_recons,
-                      loss_vq=losses_vq))
+                      loss_vq=losses_vq), file=sys.stderr)
             losses.reset()
             losses_recons.reset()
             losses_vq.reset()
@@ -180,7 +181,7 @@ def main(args):
     for epoch in range(args.num_epochs):
         train(train_loader, model, optimizer, args, writer, epoch)
         loss, _ = test(valid_loader, model, args, writer)
-        print('Validataion loss at epoch %d: Loss = %.4f' % (epoch, loss))
+        print('Validataion loss at epoch %d: Loss = %.4f' % (epoch, loss), file=sys.stderr)
 
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)

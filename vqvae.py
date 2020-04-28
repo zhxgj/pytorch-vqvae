@@ -26,6 +26,7 @@ def train(data_loader, model, optimizer, args, writer):
         loss = loss_recons + loss_vq + args.beta * loss_commit
         loss.backward()
 
+        print(loss.item(), loss_recons.item(), loss_vq.item())
         # Logs
         writer.add_scalar('loss/train/reconstruction', loss_recons.item(), args.steps)
         writer.add_scalar('loss/train/quantization', loss_vq.item(), args.steps)
@@ -123,7 +124,7 @@ def main(args):
 
     # Fixed images for Tensorboard
     fixed_images = next(iter(test_loader))
-    fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
+    fixed_grid = make_grid(fixed_images, nrow=4, range=(-1, 1), normalize=True)
     writer.add_image('original', fixed_grid, 0)
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
@@ -131,7 +132,7 @@ def main(args):
 
     # Generate the samples first once
     reconstruction = generate_samples(fixed_images, model, args)
-    grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
+    grid = make_grid(reconstruction.cpu(), nrow=4, range=(-1, 1), normalize=True)
     writer.add_image('reconstruction', grid, 0)
 
     best_loss = -1.

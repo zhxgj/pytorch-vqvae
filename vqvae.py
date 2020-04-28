@@ -10,7 +10,7 @@ from datasets import MiniImagenet, PubTabNet
 from tensorboardX import SummaryWriter
 
 def train(data_loader, model, optimizer, args, writer):
-    for images, _ in data_loader:
+    for images in data_loader:
         images = images.to(args.device)
 
         optimizer.zero_grad()
@@ -36,7 +36,7 @@ def train(data_loader, model, optimizer, args, writer):
 def test(data_loader, model, args, writer):
     with torch.no_grad():
         loss_recons, loss_vq = 0., 0.
-        for images, _ in data_loader:
+        for images in data_loader:
             images = images.to(args.device)
             x_tilde, z_e_x, z_q_x = model(images)
             loss_recons += F.mse_loss(x_tilde, images)

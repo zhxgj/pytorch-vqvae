@@ -10,6 +10,10 @@ from datasets import MiniImagenet, PubTabNet
 
 from tensorboardX import SummaryWriter
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+    sys.stderr.flush()
+
 class AverageMeter(object):
     """
     Keeps track of most recent, average, sum, and count of a metric.
@@ -62,14 +66,14 @@ def train(data_loader, model, optimizer, args, writer, epoch):
         optimizer.step()
 
         if i % 100 == 0:
-            print('Epoch: [{0}][{1}/{2}]\t'
-                  'Loss {loss.avg:.4f}\t'
-                  'Loss_recons {loss_recons.avg:.4f}\t'
-                  'Loss_vq {loss_vq.avg:.4f}\t'.format(
-                      epoch, i, len(data_loader),
-                      loss=losses,
-                      loss_recons=losses_recons,
-                      loss_vq=losses_vq), file=sys.stderr)
+            eprint('Epoch: [{0}][{1}/{2}]\t'
+                   'Loss {loss.avg:.4f}\t'
+                   'Loss_recons {loss_recons.avg:.4f}\t'
+                   'Loss_vq {loss_vq.avg:.4f}\t'.format(
+                       epoch, i, len(data_loader),
+                       loss=losses,
+                       loss_recons=losses_recons,
+                       loss_vq=losses_vq))
             losses.reset()
             losses_recons.reset()
             losses_vq.reset()
@@ -181,7 +185,7 @@ def main(args):
     for epoch in range(args.num_epochs):
         train(train_loader, model, optimizer, args, writer, epoch)
         loss, _ = test(valid_loader, model, args, writer)
-        print('Validataion loss at epoch %d: Loss = %.4f' % (epoch, loss), file=sys.stderr)
+        eprint('Validataion loss at epoch %d: Loss = %.4f' % (epoch, loss))
 
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)

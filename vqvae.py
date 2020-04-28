@@ -175,7 +175,7 @@ def main(args):
 
     best_loss = -1.
     for epoch in range(args.num_epochs):
-        train(train_loader, model, optimizer, args, writer)
+        train(train_loader, model, optimizer, args, writer, epoch)
         loss, _ = test(valid_loader, model, args, writer)
         print('Validataion loss at epoch %d: Loss = %.4f' % (epoch, loss))
 

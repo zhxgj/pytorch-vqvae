@@ -164,7 +164,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str,
         help='name of the dataset (mnist, fashion-mnist, cifar10, miniimagenet)')
     parser.add_argument('--data-name', type=str,
-        default='PubTabNet_False_keep_AR_300_max_tag_len_100_max_cell_len_512_max_image_size'
+        default='PubTabNet_False_keep_AR_300_max_tag_len_100_max_cell_len_512_max_image_size',
         help='name of the dataset (mnist, fashion-mnist, cifar10, miniimagenet)')
 
     # Latent space

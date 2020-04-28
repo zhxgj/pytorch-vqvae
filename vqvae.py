@@ -9,8 +9,32 @@ from datasets import MiniImagenet, PubTabNet
 
 from tensorboardX import SummaryWriter
 
-def train(data_loader, model, optimizer, args, writer):
-    for images in data_loader:
+class AverageMeter(object):
+    """
+    Keeps track of most recent, average, sum, and count of a metric.
+    """
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+def train(data_loader, model, optimizer, args, writer, epoch):
+    losses = AverageMeter()  # loss
+    losses_recons = AverageMeter()  # loss
+    losses_vq = AverageMeter()  # loss
+
+    for i, images in enumerate(data_loader):
         images = images.to(args.device)
 
         optimizer.zero_grad()
@@ -32,6 +56,20 @@ def train(data_loader, model, optimizer, args, writer):
         writer.add_scalar('loss/train/quantization', loss_vq.item(), args.steps)
 
         optimizer.step()
+
+        if i % 100 == 0:
+            print('Epoch: [{0}][{1}/{2}]\t'
+                  'Loss {loss.avg:.4f}\t'
+                  'Loss_recons {loss_recons.avg:.4f}\t'
+                  'Loss_vq {loss_vq.avg:.4f}\t'.format(
+                      epoch, i, len(data_loader),
+                      loss=losses,
+                      loss_recons=losses_recons,
+                      loss_vq=losses_vq))
+            losses.reset()
+            losses_recons.reset()
+            losses_vq.reset()
+
         args.steps += 1
 
 def test(data_loader, model, args, writer):
@@ -139,6 +177,7 @@ def main(args):
     for epoch in range(args.num_epochs):
         train(train_loader, model, optimizer, args, writer)
         loss, _ = test(valid_loader, model, args, writer)
+        print('Validataion loss at epoch %d: Loss = %.4f' % (epoch, loss))
 
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)

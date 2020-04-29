@@ -188,7 +188,7 @@ def main(args):
         eprint('Validataion loss at epoch %d: Loss = %.4f' % (epoch, loss))
 
         reconstruction = generate_samples(fixed_images, model, args)
-        grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
+        grid = make_grid(reconstruction.cpu(), nrow=4, range=(-1, 1), normalize=True)
         writer.add_image('reconstruction', grid, epoch + 1)
 
         if (epoch == 0) or (loss < best_loss):

@@ -118,8 +118,8 @@ def main(args):
         batch_size=16, shuffle=True)
 
     # Save the label encoder
-    with open('./models/{0}/labels.json'.format(args.output_folder), 'w') as f:
-        json.dump(train_dataset._label_encoder, f)
+    # with open('./models/{0}/labels.json'.format(args.output_folder), 'w') as f:
+    #     json.dump(train_dataset._label_encoder, f)
 
     # Fixed images for Tensorboard
     fixed_images, _ = next(iter(test_loader))
@@ -133,7 +133,7 @@ def main(args):
     model.eval()
 
     prior = GatedPixelCNN(args.k, args.hidden_size_prior,
-        args.num_layers, n_classes=len(train_dataset._label_encoder)).to(args.device)
+        args.num_layers, n_classes=1).to(args.device)
     optimizer = torch.optim.Adam(prior.parameters(), lr=args.lr)
 
     best_loss = -1.

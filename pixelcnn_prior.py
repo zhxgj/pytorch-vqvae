@@ -11,13 +11,13 @@ from datasets import MiniImagenet, PubTabNet
 from tensorboardX import SummaryWriter
 
 def train(data_loader, model, prior, optimizer, args, writer):
-    for images, labels in data_loader:
+    for images in data_loader:
         with torch.no_grad():
             images = images.to(args.device)
             latents = model.encode(images)
             latents = latents.detach()
 
-        labels = labels.to(args.device)
+        labels = torch.zeros(args.batch_size, 1).long().to(args.device)
         logits = prior(latents, labels)
         logits = logits.permute(0, 2, 3, 1).contiguous()
 
@@ -35,9 +35,9 @@ def train(data_loader, model, prior, optimizer, args, writer):
 def test(data_loader, model, prior, args, writer):
     with torch.no_grad():
         loss = 0.
-        for images, labels in data_loader:
+        for images in data_loader:
             images = images.to(args.device)
-            labels = labels.to(args.device)
+            labels = torch.zeros(args.batch_size, 1).long().to(args.device)
 
             latents = model.encode(images)
             latents = latents.detach()

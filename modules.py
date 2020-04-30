@@ -224,6 +224,7 @@ class GatedPixelCNN(nn.Module):
 
         # Create embedding layer to embed input
         self.embedding = nn.Embedding(input_dim, dim)
+        self.embedding.weight.data.uniform_(-1./input_dim, 1./input_dim)
 
         # Building the PixelCNN layer by layer
         self.layers = nn.ModuleList()

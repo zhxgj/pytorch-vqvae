@@ -6,7 +6,7 @@ from torchvision import transforms
 from torchvision.utils import save_image, make_grid
 
 from modules import VectorQuantizedVAE, GatedPixelCNN
-from datasets import MiniImagenet
+from datasets import MiniImagenet, PubTabNet
 
 from tensorboardX import SummaryWriter
 
@@ -84,6 +84,14 @@ def main(args):
                 train=False, transform=transform)
             num_channels = 3
         valid_dataset = test_dataset
+    elif args.dataset == 'PubTabNet':
+        transform = transforms.Compose([
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+        train_dataset = PubTabNet(args.data_folder, args.data_name, 'TRAIN', transform=transform)
+        test_dataset = PubTabNet(args.data_folder, args.data_name, 'VAL', transform=transform)
+        valid_dataset = test_dataset
+        num_channels = 3
     elif args.dataset == 'miniimagenet':
         transform = transforms.Compose([
             transforms.RandomResizedCrop(128),

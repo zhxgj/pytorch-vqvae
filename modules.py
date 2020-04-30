@@ -199,16 +199,15 @@ class GatedMaskedConv2d(nn.Module):
         if self.mask_type == 'A':
             self.make_causal()
 
-        h = self.class_cond_embedding(h)
         h_vert = self.vert_stack(x_v)
         h_vert = h_vert[:, :, :x_v.size(-1), :]
-        out_v = self.gate(h_vert + h[:, :, None, None])
+        out_v = self.gate(h_vert)
 
         h_horiz = self.horiz_stack(x_h)
         h_horiz = h_horiz[:, :, :, :x_h.size(-2)]
         v2h = self.vert_to_horiz(h_vert)
 
-        out = self.gate(v2h + h_horiz + h[:, :, None, None])
+        out = self.gate(v2h + h_horiz)
         if self.residual:
             out_h = self.horiz_resid(out) + x_h
         else:

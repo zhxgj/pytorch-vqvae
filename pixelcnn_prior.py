@@ -122,9 +122,9 @@ def main(args):
     #     json.dump(train_dataset._label_encoder, f)
 
     # Fixed images for Tensorboard
-    fixed_images, _ = next(iter(test_loader))
-    fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
-    writer.add_image('original', fixed_grid, 0)
+    # fixed_images, _ = next(iter(test_loader))
+    # fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
+    # writer.add_image('original', fixed_grid, 0)
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size_vae, args.k).to(args.device)
     with open(args.model, 'rb') as f:

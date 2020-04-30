@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import json
-from torchvision import transforms
+from torchvision import transforms, datasets
 from torchvision.utils import save_image, make_grid
 
 from modules import VectorQuantizedVAE, GatedPixelCNN

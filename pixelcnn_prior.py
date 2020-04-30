@@ -149,6 +149,7 @@ def main(args):
             with open(save_filename, 'wb') as f:
                 torch.save(prior.state_dict(), f)
 
+
 if __name__ == '__main__':
     import argparse
     import os

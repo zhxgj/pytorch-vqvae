@@ -39,7 +39,7 @@ def train(data_loader, model, optimizer, args, writer, epoch):
     losses_recons = AverageMeter()  # loss
     losses_vq = AverageMeter()  # loss
 
-    for i, images in enumerate(data_loader):
+    for i, (images, labels) in enumerate(data_loader):
         images = images.to(args.device)
 
         optimizer.zero_grad()
@@ -83,7 +83,7 @@ def train(data_loader, model, optimizer, args, writer, epoch):
 def test(data_loader, model, args, writer):
     with torch.no_grad():
         loss_recons, loss_vq = 0., 0.
-        for images in data_loader:
+        for images, labels in data_loader:
             images = images.to(args.device)
             x_tilde, z_e_x, z_q_x = model(images)
             loss_recons += F.mse_loss(x_tilde, images)
@@ -169,7 +169,7 @@ def main(args):
         batch_size=16, shuffle=True)
 
     # Fixed images for Tensorboard
-    fixed_images = next(iter(test_loader))
+    fixed_images, _ = next(iter(test_loader))
     fixed_grid = make_grid(fixed_images, nrow=4, range=(-1, 1), normalize=True)
     writer.add_image('original', fixed_grid, 0)
 
